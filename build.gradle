@@ -1,0 +1,20 @@
+tasks.register("collectAars", Copy) {
+    from(subprojects.collect { subproject ->
+        subproject.layout.buildDirectory.dir("outputs/aar")
+    })
+    into(layout.buildDirectory.dir("outputs/aar"))
+}
+
+tasks.named("collectAars") {
+    dependsOn(subprojects.collect { sub ->
+        sub.tasks.matching { it.name == "assembleRelease" }
+    })
+}
+
+subprojects {
+    tasks.matching { it.name == "assembleRelease" }.configureEach {
+        finalizedBy(rootProject.tasks.named("collectAars"))
+    }
+}
+
+
