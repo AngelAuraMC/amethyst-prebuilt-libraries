@@ -13,3 +13,6 @@
 	path = renderers/mesa-libs/libs/kopper_zink/drm
 	url = https://gitlab.freedesktop.org/mesa/drm
 	shallow = true
+[submodule "renderers/HolyGL4ES/HolyGL4ES"]
+	path = renderers/HolyGL4ES/HolyGL4ES
+	url = git@github.com:AngelAuraMC/HolyGL4ES.git
