@@ -2,7 +2,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR" || exit 1
 
-../crossfiles/generate_libdrm-static_crossfiles.sh
+../crossfiles/generate_libdrm-static_crossfiles.sh $1
 
 meson setup ../drm "build-libdrm_static-aarch64-android" \
             --prefix=$PWD"/../libdrm_install_dir/drm-static-aarch64-android" \

@@ -3,6 +3,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR" || exit 1
 
 SDK_VER=${SDK_VER:-26}
+ANDROID_NDK_ROOT=${ANDROID_NDK_ROOT:-$1}
+if [ -z "$ANDROID_NDK_ROOT" ]; then
+    echo "Error: NDK path not provided. Set ANDROID_NDK_ROOT or pass as argument."
+    exit 1
+fi
 LIBDRM_INSTALL_DIR=${LIBDRM_INSTALL_DIR:-../libdrm_install_dir}
 
 # Note: The cpu parameter in host_machine doesn't seem to actually do anything.

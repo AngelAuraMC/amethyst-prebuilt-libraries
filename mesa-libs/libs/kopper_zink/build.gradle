@@ -37,7 +37,7 @@ android {
     sourceSets {
         main {
             jniLibs.srcDirs += [
-                    'build/meson'
+                    'jniLibs'
             ]
         }
     }
@@ -53,12 +53,43 @@ android {
     }
 }
 
-task buildNinja(type: Exec) {
-    workingDir "$rootProject.projectDir/mesa-libs/mesa"
-    commandLine "ninja", "-f", "build.ninja"
+tasks.register('buildZink', Exec) {
+    workingDir "$rootProject.projectDir/mesa-libs/libs/kopper_zink/builddirs"
+    commandLine "./build_zink_builddirs.sh", android.ndkDirectory.absolutePath
+    inputs.files fileTree("$projectDir") {
+        include "crossfiles/*.sh"
+        include "builddirs/*.sh"
+        include "drm/**"
+        include "GLXShim/**"
+    }
+    outputs.dir "$projectDir/kopper_zink_install_dir"
+    finalizedBy tasks.named("copyZink")
+}
 
-    inputs.files fileTree("src/main/cpp") { include "**/*.cpp", "**/*.h" }
-
-    // Outputs are where Ninja produces the .so files
-    outputs.dir "$projectDir/src/main/cpp/build/armeabi-v7a"
+tasks.register('copyZink', Copy) {
+    def abis = ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"]
+    abis.each { abi ->
+        from("$projectDir/kopper_zink_install_dir/kopper_zink-${abi}-android/lib") {
+            include "*.so"
+            eachFile { fileCopyDetails ->
+                // Flatten the directory structure
+                System.out.println(fileCopyDetails.getPath())
+            }
+            rename("zink_dri.so", "libzink_dri.so")
+            exclude "libGLESv*"
+            into(abi)
+        }
+        // Special handling for zink_dri.so
+        from("$projectDir/kopper_zink_install_dir/kopper_zink-${abi}-android/lib/dri") {
+            include "*.so"
+            eachFile { fileCopyDetails ->
+                // Flatten the directory structure
+                System.out.println(fileCopyDetails.getPath())
+            }
+            rename("zink_dri.so", "libzink_dri.so")
+            into(abi)
+        }
+    }
+    into("$projectDir/jniLibs")
+    dependsOn tasks.named("buildZink")
 }
