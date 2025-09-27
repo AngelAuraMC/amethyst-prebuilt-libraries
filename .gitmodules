@@ -11,7 +11,7 @@
 	shallow = true
 [submodule "mesa-drm"]
 	path = renderers/mesa-libs/libs/kopper_zink/drm
-	url = https://gitlab.freedesktop.org/mesa/drm
+	url = https://gitlab.freedesktop.org/mesa/libdrm.git
 	shallow = true
 [submodule "renderers/HolyGL4ES/HolyGL4ES"]
 	path = renderers/HolyGL4ES/HolyGL4ES
