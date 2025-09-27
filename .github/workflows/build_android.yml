@@ -1,0 +1,22 @@
+name: Android CI
+
+on:
+  pull_request:
+    types: [ opened, reopened, ready_for_review]
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+      - name: Build everything
+        run: ./gradlew assembleRelease
+      - name: Upload AARs
+        uses: actions/upload-artifact@v4
+        with:
+          path: build/outputs/aar
