@@ -4,7 +4,11 @@ on:
   pull_request:
     types: [ opened, reopened, ready_for_review]
   push:
+    tags: latest
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -21,6 +25,14 @@ jobs:
       - name: Setup tmate session if failed
         if: ${{ failure() }}
         uses: mxschmitt/action-tmate@v3
+      - name: Create a Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          files: build/outputs/aar/**
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          tag_name: "latest"
       - name: Upload AARs
         uses: actions/upload-artifact@v4
         with:
