@@ -1,3 +1,13 @@
 [submodule "MobileGlues"]
 	path = MobileGlues
 	url = https://github.com/MobileGL-Dev/MobileGlues.git
+[submodule "GLXShim"]
+	path = mesa-libs/libs/kopper_zink/GLXShim
+	url = https://github.com/Swung0x48/GLXShim.git
+[submodule "mesa-kopper"]
+	path = mesa-libs/mesa
+	url = https://gitlab.freedesktop.org/Swung0x48/mesa.git
+	shallow = true
+[submodule "mesa-libs/libs/kopper_zink/drm"]
+	path = mesa-libs/libs/kopper_zink/drm
+	url = https://gitlab.freedesktop.org/mesa/drm

@@ -3,9 +3,6 @@ pluginManagement {
         gradlePluginPortal()
         google()
     }
-    plugins{
-        id 'com.android.library' version '8.7.3' apply false
-    }
 }
 
 dependencyResolutionManagement {
@@ -19,3 +16,6 @@ dependencyResolutionManagement {
 
 rootProject.name = 'amethyst-external-library-builds'
 include(":MobileGlues")
+include (":kopper-zink")
+
+project(":kopper-zink").projectDir = file("mesa-libs/libs/kopper_zink")
