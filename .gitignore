@@ -11,3 +11,4 @@ renderers/mesa-libs/libs/kopper_zink/crossfiles
 renderers/mesa-libs/libs/kopper_zink/kopper_zink_install_dir
 renderers/mesa-libs/libs/kopper_zink/libdrm_install_dir
 renderers/mesa-libs/libs/kopper_zink/jniLibs
+local.properties
