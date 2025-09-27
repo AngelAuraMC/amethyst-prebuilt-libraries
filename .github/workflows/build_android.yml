@@ -15,7 +15,9 @@ jobs:
         with:
           submodules: "recursive"
       - name: Build everything
-        run: ./gradlew assembleRelease
+        run: |
+          sudo apt install -y python3-mako meson
+          ./gradlew assembleRelease
       - name: Setup tmate session if failed
         if: ${{ failure() }}
         uses: mxschmitt/action-tmate@v3
