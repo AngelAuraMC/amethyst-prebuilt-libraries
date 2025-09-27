@@ -16,3 +16,9 @@
 [submodule "renderers/HolyGL4ES/HolyGL4ES"]
 	path = renderers/HolyGL4ES/HolyGL4ES
 	url = git@github.com:AngelAuraMC/HolyGL4ES.git
+[submodule "SDL/sdl2-compat"]
+	path = SDL/sdl2-compat
+	url = https://github.com/libsdl-org/sdl2-compat.git
+[submodule "SDL/SDL3"]
+	path = SDL/SDL3
+	url = https://github.com/libsdl-org/SDL.git
