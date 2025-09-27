@@ -53,8 +53,18 @@ android {
     }
 }
 
+afterEvaluate {
+    tasks.named("mergeReleaseJniLibFolders") {
+        dependsOn(tasks.named("copyZink"))
+    }
+    tasks.named("mergeDebugJniLibFolders") {
+        dependsOn(tasks.named("copyZink"))
+    }
+}
+
+// TODO: Add a way to swap between debug and release builds
 tasks.register('buildZink', Exec) {
-    workingDir "$rootProject.projectDir/mesa-libs/libs/kopper_zink/builddirs"
+    workingDir "$projectDir/builddirs"
     commandLine "./build_zink_builddirs.sh", android.ndkDirectory.absolutePath
     inputs.files fileTree("$projectDir") {
         include "crossfiles/*.sh"

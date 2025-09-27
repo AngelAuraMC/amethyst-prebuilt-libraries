@@ -18,4 +18,5 @@ rootProject.name = 'amethyst-external-library-builds'
 include(":MobileGlues")
 include (":kopper-zink")
 
-project(":kopper-zink").projectDir = file("mesa-libs/libs/kopper_zink")
+project(":MobileGlues").projectDir = file("renderers/MobileGlues")
+project(":kopper-zink").projectDir = file("renderers/mesa-libs/libs/kopper_zink")
