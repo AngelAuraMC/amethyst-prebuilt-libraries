@@ -16,9 +16,18 @@ tasks.named("collectAars") {
     })
 }
 
-subprojects {
+subprojects { subproject ->
     tasks.matching { it.name == "assembleRelease" }.configureEach {
         finalizedBy(rootProject.tasks.named("collectAars"))
+    }
+    afterEvaluate {
+        if (subproject.plugins.hasPlugin('com.android.library')) {
+            subproject.android {
+                defaultConfig {
+                    minSdkVersion 21
+                }
+            }
+        }
     }
 }
 
