@@ -4,8 +4,9 @@ export SHELLOPTS
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR" || exit 1
 
-./build_libdrm-static_builddirs.sh $1
-../crossfiles/generate_zink_crossfiles.sh $1
+./build_libdrm-static_builddirs.sh ${1:-}
+./build_libcutils.sh
+../crossfiles/generate_zink_crossfiles.sh ${1:-}
 
 meson setup ../../../mesa/ "build-kopper_zink-aarch64-android" \
             --prefix=$PWD"/../kopper_zink_install_dir/kopper_zink-arm64-v8a-android" \

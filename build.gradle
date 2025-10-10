@@ -11,8 +11,8 @@ tasks.register("collectAars", Copy) {
 }
 
 tasks.named("collectAars") {
-    dependsOn(subprojects.collect { sub ->
-        sub.tasks.matching { it.name == "assembleRelease" }
+    dependsOn(subprojects.collectMany { sub ->
+        sub.tasks.matching { it.name in ["bundleDebugAar", "bundleReleaseAar"] }
     })
 }
 
