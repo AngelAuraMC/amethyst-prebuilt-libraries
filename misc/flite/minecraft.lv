@@ -1,0 +1,4 @@
+# Minecraft only ever uses kal16, and kal16 only ever depends on these lexes and langs.
+LEXES += cmulex
+LANGS += usenglish
+VOXES += cmu_us_kal16

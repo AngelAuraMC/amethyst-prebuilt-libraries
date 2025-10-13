@@ -25,3 +25,6 @@
 	path = SDL/SDL3
 	url = https://github.com/libsdl-org/SDL.git
 	shallow = true
+[submodule "misc/flite/flite"]
+	path = misc/flite/flite
+	url = git@github.com:AngelAuraMC/flite.git
