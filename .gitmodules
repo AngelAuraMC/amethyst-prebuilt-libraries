@@ -25,3 +25,6 @@
 	path = SDL/SDL3
 	url = https://github.com/libsdl-org/SDL.git
 	shallow = true
+[submodule "renderers/krypton_wrapper/krypton_wrapper"]
+	path = renderers/krypton_wrapper/krypton_wrapper
+	url = https://github.com/BZLZHH/NG-GL4ES.git
