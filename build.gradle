@@ -12,7 +12,11 @@ tasks.register("collectAars", Copy) {
 
 tasks.named("collectAars") {
     dependsOn(subprojects.collectMany { sub ->
-        sub.tasks.matching { it.name in ["bundleDebugAar", "bundleReleaseAar"] }
+        if (gradle.startParameter.taskNames.any { it.contains("Release") }) {
+            sub.tasks.matching { it.name == "bundleReleaseAar" }
+        } else {
+            sub.tasks.matching { it.name == "bundleDebugAar" }
+        }
     })
 }
 
