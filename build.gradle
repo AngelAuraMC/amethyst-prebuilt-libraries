@@ -10,6 +10,16 @@ tasks.register("collectAars", Copy) {
     into(layout.buildDirectory.dir("outputs/aar"))
 }
 
+// The configuration cache ruins this. Disable it if you want this to not fuck up when swapping
+// between debug and release consecutively, otherwise, works fine.
+tasks.register("cleanStaleAars", Delete) {
+    def deleteList = [
+            subprojects.collectMany { it.layout.buildDirectory.dir("outputs/aar").get().getAsFileTree().toList()},
+            rootProject.layout.buildDirectory.dir("outputs/aar").get().getAsFileTree().toList()
+    ] // This is nested, deleteList[0] is the subprojects, [1] is root.
+    delete(deleteList)
+}
+
 tasks.named("collectAars") {
     dependsOn(subprojects.collectMany { sub ->
         if (gradle.startParameter.taskNames.any { it.contains("Release") }) {
@@ -21,10 +31,21 @@ tasks.named("collectAars") {
 }
 
 subprojects { subproject ->
-    tasks.matching { it.name == "assembleRelease" }.configureEach {
-        finalizedBy(rootProject.tasks.named("collectAars"))
-    }
+    // Force SDK21 on all of them!!
     afterEvaluate {
+        tasks.matching { it.name in ["assembleRelease", "assembleDebug"] }.configureEach {
+            finalizedBy(rootProject.tasks.named("collectAars"))
+        }
+        tasks.matching { ["bundleReleaseAar", "bundleDebugAar"].any {
+            prefix -> it.name.startsWith(prefix)
+        } }.configureEach {
+            mustRunAfter(rootProject.tasks.named("cleanStaleAars"))
+        }
+        tasks.matching { ["buildNdkBuildRelease", "buildNdkBuildDebug"].any {
+            prefix -> it.name.startsWith(prefix)
+        } }.configureEach {
+            finalizedBy(rootProject.tasks.named("cleanStaleAars"))
+        }
         if (subproject.plugins.hasPlugin('com.android.library')) {
             subproject.android {
                 defaultConfig {
