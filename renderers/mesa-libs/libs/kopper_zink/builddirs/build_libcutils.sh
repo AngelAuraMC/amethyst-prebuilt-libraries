@@ -45,8 +45,8 @@ fetch_android_file() {
   fi
 }
 
-mkdir $PWD/libcutils-build-universal || true
-cd $PWD/libcutils-build-universal
+mkdir $PWD/build-libcutils-universal || true
+cd $PWD/build-libcutils-universal
 # Source files
 fetch_android_file platform/system/core refs/tags/android-platform-13.0.0_r34 libcutils/trace-dev.inc trace-dev.inc
 fetch_android_file platform/system/core refs/tags/android-platform-13.0.0_r34 libcutils/trace-dev.cpp trace-dev.cpp
@@ -98,6 +98,11 @@ fetch_android_file platform/system/logging refs/tags/android-platform-13.0.0_r34
 fetch_android_file platform/system/logging refs/tags/android-platform-13.0.0_r34 liblog/include/log/log_safetynet.h ./include/log/log_safetynet.h
 fetch_android_file platform/system/logging refs/tags/android-platform-13.0.0_r34 liblog/include/log/log_system.h ./include/log/log_system.h
 fetch_android_file platform/system/logging refs/tags/android-platform-13.0.0_r34 liblog/include/log/log_time.h ./include/log/log_time.h
+
+mkdir -p ../../jniLibs/arm64-v8a
+mkdir -p ../../jniLibs/armeabi-v7a
+mkdir -p ../../jniLibs/x86_64
+mkdir -p ../../jniLibs/x86
 
 echo "Creating shared library (aarch64)"
 $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++ -I ./include/ -I $ANDROID_NDK_ROOT/sources/third_party/googletest/include/ -I $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/ --shared -std=c++17 -fPIC trace-dev.cpp properties.cpp -o ../../jniLibs/arm64-v8a/libcutils.so -llog
