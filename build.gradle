@@ -20,22 +20,36 @@ tasks.register("cleanStaleAars", Delete) {
     delete(deleteList)
 }
 
+
 tasks.named("collectAars") {
     dependsOn(subprojects.collectMany { sub ->
+        def tasksDependencies = []
         if (gradle.startParameter.taskNames.any { it.contains("Release") }) {
-            sub.tasks.matching { it.name == "bundleReleaseAar" }
-        } else {
-            sub.tasks.matching { it.name == "bundleDebugAar" }
+            tasksDependencies += sub.tasks.matching { it.name == "bundleReleaseAar" }
+        } else if (gradle.startParameter.taskNames.any { it.contains("Debug") }) {
+            tasksDependencies += sub.tasks.matching { it.name == "bundleDebugAar" }
         }
+        tasksDependencies
     })
 }
 
 subprojects { subproject ->
-    // Force SDK21 on all of them!!
     afterEvaluate {
+        // Makes sure collectAars only does release and debug
+        tasks.configureEach { task ->
+            if (task.name.startsWith("bundle") &&
+                    !task.name.endsWith("ReleaseAar") &&
+                    !task.name.endsWith("DebugAar")) {
+
+                task.enabled = false
+                logger.lifecycle("Disabled task: ${task.name}")
+            }
+        }
+        // Makes sure AARs are collected from subprojects at the right time
         tasks.matching { it.name in ["assembleRelease", "assembleDebug"] }.configureEach {
             finalizedBy(rootProject.tasks.named("collectAars"))
         }
+        // Makes sure AARs are deleted from subprojects at the right time
         tasks.matching { ["bundleReleaseAar", "bundleDebugAar"].any {
             prefix -> it.name.startsWith(prefix)
         } }.configureEach {
@@ -46,6 +60,7 @@ subprojects { subproject ->
         } }.configureEach {
             finalizedBy(rootProject.tasks.named("cleanStaleAars"))
         }
+        // Force SDK21 on all of them!!
         if (subproject.plugins.hasPlugin('com.android.library')) {
             subproject.android {
                 defaultConfig {

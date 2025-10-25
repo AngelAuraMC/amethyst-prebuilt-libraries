@@ -30,9 +30,6 @@ android {
             jniDebuggable = true
             renderscriptDebuggable = true
         }
-        create("fordebug") {
-            jniDebuggable = true
-        }
     }
     sourceSets {
         main {
