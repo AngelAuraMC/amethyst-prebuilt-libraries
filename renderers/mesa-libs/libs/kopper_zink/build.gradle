@@ -30,9 +30,7 @@ android {
             jniDebuggable = true
             renderscriptDebuggable = true
         }
-        create("fordebug") {
-            jniDebuggable = true
-        }
+
     }
     sourceSets {
         main {
@@ -54,10 +52,10 @@ android {
 }
 
 afterEvaluate {
-    tasks.named("mergeReleaseJniLibFolders") {
-        dependsOn(tasks.named("copyZink"))
-    }
-    tasks.named("mergeDebugJniLibFolders") {
+    tasks.matching { it.name in [
+            "mergeReleaseJniLibFolders",
+            "mergeDebugJniLibFolders",
+    ] }.configureEach {
         dependsOn(tasks.named("copyZink"))
     }
 }

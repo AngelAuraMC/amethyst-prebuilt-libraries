@@ -30,9 +30,7 @@ android {
             jniDebuggable = true
             renderscriptDebuggable = true
         }
-        create("fordebug") {
-            jniDebuggable = true
-        }
+
     }
     externalNativeBuild {
         ndkBuild {
