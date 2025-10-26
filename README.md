@@ -15,6 +15,7 @@ Any mesa based AAR should be put under `renderers/mesa-libs/libs/<subproject_nam
 # Licenses
 ___
 * [GL4ES](https://github.com/AngelAuraMC/gl4es): [MIT License](https://github.com/ptitSeb/gl4es/blob/master/LICENSE).
+* [krypton-wrapper](https://github.com/BZLZHH/NG-GL4ES): [MIT License](https://github.com/ptitSeb/gl4es/blob/master/LICENSE).
 * [MobileGlues](https://github.com/MobileGL-Dev/MobileGlues): [LGPL-2.1 License](https://github.com/MobileGL-Dev/MobileGlues/blob/dev-es/LICENSE).
 * [Mesa 3D Graphics Library](https://gitlab.freedesktop.org/mesa/mesa): [MIT License](https://docs.mesa3d.org/license.html), Other Licenses (Refer to source files SPDX headers).
 * [GLXShim](https://github.com/Swung0x48/GLXShim) - Unknown License
