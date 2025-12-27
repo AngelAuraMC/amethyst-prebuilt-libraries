@@ -1,0 +1,56 @@
+import java.security.MessageDigest
+
+plugins {
+    id 'java'
+}
+
+group = 'org.lwjgl.glfw'
+
+configurations.default.setCanBeResolved(true)
+
+jar {
+    doFirst {
+        def requiredDirs = ["$projectDir/libs", "$projectDir/licenses"]
+        requiredDirs.each { dirPath ->
+            def dir = file(dirPath)
+            if (!dir.exists() || !dir.listFiles()?.any()) {
+                throw new GradleException("Directory '${dirPath}' is missing or empty. Please run update-lwjgl-jars.sh to generate it.")
+            }
+        }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveBaseName = "lwjgl-glfw-classes"
+
+    MessageDigest digest = MessageDigest.getInstance("SHA-256")
+    file("./libs").eachFileRecurse { file ->
+        if (file.isFile()) {
+            digest.update(file.name.bytes)
+            digest.update(file.bytes)
+        }
+    }
+    File versionFile = file("version")
+    versionFile.write(digest.digest().encodeHex().toString())
+    
+    from {
+        configurations.default.collect {
+            println(it.getName())
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    from("licenses") {
+        into './licenses'
+    }
+    from("./version")
+        into ''
+    exclude 'net/java/openjdk/cacio/ctc/**'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
