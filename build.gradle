@@ -17,6 +17,14 @@ tasks.register("collectLibs", Copy) {
     into(layout.buildDirectory.dir("libs/"))
 }
 
+tasks.register("collectLibLicenses", Copy) {
+    from(subprojects.collect { subproject ->
+        subproject.layout.buildDirectory.dir("licenses/")
+    })
+    into(layout.buildDirectory.dir("licenses/"))
+}
+
+
 // The configuration cache ruins this. Disable it if you want this to not fuck up when swapping
 // between debug and release consecutively, otherwise, works fine.
 tasks.register("cleanStaleAars", Delete) {
@@ -43,6 +51,7 @@ tasks.named("collectAars") {
 // Piggy backing off of the order that was made here
 tasks.named("collectAars") {
     dependsOn(tasks.named("collectLibs"))
+    dependsOn(tasks.named("collectLibLicenses"))
 }
 
 tasks.named("collectLibs"){
