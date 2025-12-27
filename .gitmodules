@@ -34,3 +34,6 @@
 [submodule "imgui-java"]
 	path = misc/imgui-java/imgui-java
 	url = https://github.com/alexytomi/imgui-java.git
+[submodule "misc/lwjgl-classes/lwjgl3"]
+	path = misc/lwjgl-classes/lwjgl3
+	url = https://github.com/AngelAuraMC/lwjgl3.git
