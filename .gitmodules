@@ -28,3 +28,6 @@
 [submodule "renderers/krypton_wrapper/krypton_wrapper"]
 	path = renderers/krypton_wrapper/krypton_wrapper
 	url = https://github.com/BZLZHH/NG-GL4ES.git
+[submodule "zstd"]
+	path = misc/zstd/zstd
+	url = https://github.com/facebook/zstd.git
