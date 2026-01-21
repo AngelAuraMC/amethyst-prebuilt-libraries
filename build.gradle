@@ -10,6 +10,13 @@ tasks.register("collectAars", Copy) {
     into(layout.buildDirectory.dir("outputs/aar"))
 }
 
+tasks.register("collectLibs", Copy) {
+    from(subprojects.collect { subproject ->
+        subproject.layout.buildDirectory.dir("libs/")
+    })
+    into(layout.buildDirectory.dir("libs/"))
+}
+
 // The configuration cache ruins this. Disable it if you want this to not fuck up when swapping
 // between debug and release consecutively, otherwise, works fine.
 tasks.register("cleanStaleAars", Delete) {
@@ -30,6 +37,25 @@ tasks.named("collectAars") {
             tasksDependencies += sub.tasks.matching { it.name == "bundleDebugAar" }
         }
         tasksDependencies
+    })
+}
+
+// Piggy backing off of the order that was made here
+tasks.named("collectAars") {
+    dependsOn(tasks.named("collectLibs"))
+}
+
+tasks.named("collectLibs"){
+    dependsOn(subprojects.collectMany { sub ->
+        if (sub.plugins.hasPlugin("java-library")) {
+            def tasksDependencies = []
+            if (gradle.startParameter.taskNames.any { it.contains("Release") } ||
+                gradle.startParameter.taskNames.any { it.contains("Debug") } ||
+                gradle.startParameter.taskNames.any { it.matches("assemble") }) {
+                tasksDependencies += sub.tasks.matching { it.name == "jar" }
+                tasksDependencies
+            }
+        }
     })
 }
 
