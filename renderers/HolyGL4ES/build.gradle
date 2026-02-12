@@ -32,6 +32,13 @@ android {
         }
 
     }
+    sourceSets {
+        main {
+            assets.srcDirs += [
+                    'assets'
+            ]
+        }
+    }
     externalNativeBuild {
         ndkBuild {
             path file('HolyGL4ES/Android.mk')
