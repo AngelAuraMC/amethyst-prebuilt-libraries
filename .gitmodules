@@ -1,5 +1,5 @@
 [submodule "MobileGlues"]
-	path = renderers/MobileGlues
+	path = renderers/MobileGlues/MobileGlues
 	url = https://github.com/MobileGL-Dev/MobileGlues.git
 	shallow = true
 [submodule "GLXShim"]

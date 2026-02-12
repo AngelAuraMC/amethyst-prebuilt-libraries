@@ -3,47 +3,40 @@ plugins {
 }
 
 android {
-    namespace = "org.angelauramc.libzstd"
-    compileSdkVersion 36
+    namespace = "com.swung0x48.mobileglues"
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        externalNativeBuild {
-            cmake {
-                cppFlags("")
-            }
-        }
+        ndkVersion = "27.1.12297006"
     }
 
     buildTypes {
-        release {
-            minifyEnabled = false
+        getByName("release") {
+            isMinifyEnabled = false
             proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro"
             )
         }
-        getByName("debug") {
-            jniDebuggable = true
-            renderscriptDebuggable = true
+        create("proguard") {
+            isMinifyEnabled = true
+            initWith(getByName("debug"))
+        }
+        create("fordebug") {
         }
     }
     sourceSets {
-        main {
-            jniLibs.srcDirs += [
-                    'jniLibs'
-            ]
-            assets.srcDirs += [
-                    'assets'
-            ]
+        getByName("main") {
+            assets.srcDirs("assets")
         }
     }
     externalNativeBuild {
         cmake {
-            path("zstd/CMakeLists.txt")
+            path = file("MobileGlues/src/main/cpp/CMakeLists.txt")
             version = "3.22.1"
         }
     }

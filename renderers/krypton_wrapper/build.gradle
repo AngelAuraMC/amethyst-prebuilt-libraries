@@ -36,6 +36,9 @@ android {
             jniLibs.srcDirs += [
                     'jniLibs'
             ]
+            assets.srcDirs += [
+                    'assets'
+            ]
         }
     }
     externalNativeBuild {
