@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library' version libs.versions.agp apply false
     id 'org.jetbrains.kotlin.android' version libs.versions.kotlin apply false
+    id 'base'
 }
 
 tasks.register("collectAars", Copy) {
@@ -8,6 +9,7 @@ tasks.register("collectAars", Copy) {
         subproject.layout.buildDirectory.dir("outputs/aar")
     })
     into(layout.buildDirectory.dir("outputs/aar"))
+    outputs.dir(layout.buildDirectory.dir("outputs/aar"))
 }
 
 tasks.register("collectLibs", Copy) {
@@ -15,6 +17,7 @@ tasks.register("collectLibs", Copy) {
         subproject.layout.buildDirectory.dir("libs/")
     })
     into(layout.buildDirectory.dir("libs/"))
+    outputs.dir(layout.buildDirectory.dir("libs/"))
 }
 
 tasks.register("collectLibLicenses", Copy) {
@@ -22,50 +25,20 @@ tasks.register("collectLibLicenses", Copy) {
         subproject.layout.buildDirectory.dir("licenses/")
     })
     into(layout.buildDirectory.dir("licenses/"))
+    outputs.dir(layout.buildDirectory.dir("licenses/"))
 }
 
-
-// The configuration cache ruins this. Disable it if you want this to not fuck up when swapping
-// between debug and release consecutively, otherwise, works fine.
-tasks.register("cleanStaleAars", Delete) {
-    def deleteList = [
-            subprojects.collectMany { it.layout.buildDirectory.dir("outputs/aar").get().getAsFileTree().toList()},
-            rootProject.layout.buildDirectory.dir("outputs/aar").get().getAsFileTree().toList()
-    ] // This is nested, deleteList[0] is the subprojects, [1] is root.
-    delete(deleteList)
+tasks.named("clean", Delete) {
+    delete(
+        layout.buildDirectory.dir("outputs/aar"),
+        layout.buildDirectory.dir("libs"),
+        layout.buildDirectory.dir("licenses")
+    )
 }
 
-
-tasks.named("collectAars") {
-    dependsOn(subprojects.collectMany { sub ->
-        def tasksDependencies = []
-        if (gradle.startParameter.taskNames.any { it.contains("Release") }) {
-            tasksDependencies += sub.tasks.matching { it.name == "bundleReleaseAar" }
-        } else if (gradle.startParameter.taskNames.any { it.contains("Debug") }) {
-            tasksDependencies += sub.tasks.matching { it.name == "bundleDebugAar" }
-        }
-        tasksDependencies
-    })
-}
-
-// Piggy backing off of the order that was made here
 tasks.named("collectAars") {
     dependsOn(tasks.named("collectLibs"))
     dependsOn(tasks.named("collectLibLicenses"))
-}
-
-tasks.named("collectLibs"){
-    dependsOn(subprojects.collectMany { sub ->
-        if (sub.plugins.hasPlugin("java-library")) {
-            def tasksDependencies = []
-            if (gradle.startParameter.taskNames.any { it.contains("Release") } ||
-                gradle.startParameter.taskNames.any { it.contains("Debug") } ||
-                gradle.startParameter.taskNames.any { it.matches("assemble") }) {
-                tasksDependencies += sub.tasks.matching { it.name == "jar" }
-                tasksDependencies
-            }
-        }
-    })
 }
 
 subprojects { subproject ->
@@ -88,12 +61,17 @@ subprojects { subproject ->
         tasks.matching { ["bundleReleaseAar", "bundleDebugAar"].any {
             prefix -> it.name.startsWith(prefix)
         } }.configureEach {
-            mustRunAfter(rootProject.tasks.named("cleanStaleAars"))
+            mustRunAfter(rootProject.tasks.named("clean"))
         }
         tasks.matching { ["buildNdkBuildRelease", "buildNdkBuildDebug"].any {
             prefix -> it.name.startsWith(prefix)
         } }.configureEach {
-            finalizedBy(rootProject.tasks.named("cleanStaleAars"))
+            finalizedBy(rootProject.tasks.named("clean"))
+        }
+        // Makes sure JARs are put in top level build folder on build
+        tasks.matching { it.name == 'jar' }.configureEach {
+            finalizedBy(rootProject.tasks.named('collectLibs'))
+            finalizedBy(rootProject.tasks.named('collectLibLicenses'))
         }
         // Force SDK21 on all of them!!
         if (subproject.plugins.hasPlugin('com.android.library')) {
