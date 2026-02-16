@@ -9,14 +9,16 @@ group = 'org.lwjgl.glfw'
 configurations.default.setCanBeResolved(true)
 
 jar {
-    doFirst {
-        def requiredDirs = ["$projectDir/libs", "$projectDir/licenses"]
-        requiredDirs.each { dirPath ->
-            def dir = file(dirPath)
-            if (!dir.exists() || !dir.listFiles()?.any()) {
-                throw new GradleException("Directory '${dirPath}' is missing or empty. Please run update-lwjgl-jars.sh to generate it.")
-            }
-        }
+    // Make sure we actually have something to put in a jar
+    def libsDir = file("$projectDir/libs")
+    def licensesDir = file("$projectDir/licenses")
+
+    if (!libsDir.exists() || !libsDir.listFiles()?.length) {
+        throw new GradleException("The libs directory is empty or missing: $libsDir")
+    }
+
+    if (!licensesDir.exists() || !licensesDir.listFiles()?.length) {
+        throw new GradleException("The licenses directory is empty or missing: $licensesDir")
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveBaseName = "lwjgl-glfw-classes"
@@ -53,4 +55,5 @@ java {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
