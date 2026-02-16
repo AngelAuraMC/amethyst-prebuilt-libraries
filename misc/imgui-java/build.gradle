@@ -35,7 +35,7 @@ android {
     sourceSets {
         main {
             jniLibs.srcDirs += [
-                    'jniLibs'
+                    layout.buildDirectory.dir("generated/jniLibs")
             ]
             assets.srcDirs += [
                     'assets'
@@ -81,6 +81,19 @@ tasks.register('copyImguiNatives', Copy) {
             into(abi)
         }
     }
-    into("$projectDir/jniLibs")
+    into(layout.buildDirectory.dir("generated/jniLibs"))
     dependsOn tasks.named("buildImguiNatives")
 }
+
+tasks.register("cleanImguiNatives", Delete) {
+    def abis = ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"]
+    abis.each { abi ->
+        delete layout.buildDirectory.dir("generated/jniLibs/${abi}")
+    }
+    delete file("/tmp/imgui/dst")
+}
+
+tasks.named("clean") {
+    dependsOn(tasks.named("cleanImguiNatives"))
+}
+
