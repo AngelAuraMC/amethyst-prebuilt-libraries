@@ -25,3 +25,6 @@ ___
 * [zstd](https://github.com/facebook/zstd): [BSD License](https://github.com/facebook/zstd/blob/ae9f20ca2716f2605822ca375995b7d876389b64/LICENSE) or [GPLv2 License](https://github.com/facebook/zstd/blob/ae9f20ca2716f2605822ca375995b7d876389b64/COPYING)
 * [SDL3](https://github.com/libsdl-org/SDL): [zlib License](https://github.com/libsdl-org/SDL/blob/main/LICENSE.txt)
 * [sdl2-compat](https://github.com/libsdl-org/sdl2-compat): [zlib License](https://github.com/libsdl-org/sdl2-compat/blob/main/LICENSE.txt)
+* [OpenAL-Soft](https://github.com/kcat/openal-soft): [GNU GPLv2](app_pojavlauncher/src/main/assets/licenses/OPENAL-SOFT_GPL2)
+  * [oboe](https://github.com/google/oboe): [Apache License 2.0](app_pojavlauncher/src/main/assets/licenses/OBOE_APACHE2).
+  * [pfffft](https://bitbucket.org/jpommier/pffft/src/master/): [ARR](app_pojavlauncher/src/main/assets/licenses/PFFFT_LICENSE)

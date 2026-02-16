@@ -37,3 +37,6 @@
 [submodule "misc/lwjgl-classes/lwjgl3"]
 	path = misc/lwjgl-classes/lwjgl3
 	url = https://github.com/AngelAuraMC/lwjgl3.git
+[submodule "misc/openal-soft/openal-soft"]
+	path = misc/openal-soft/openal-soft
+	url = https://github.com/AngelAuraMC/openal-soft.git
