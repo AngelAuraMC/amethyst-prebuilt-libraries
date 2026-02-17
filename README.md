@@ -21,6 +21,7 @@ ___
 * [Mesa 3D Graphics Library](https://gitlab.freedesktop.org/mesa/mesa): [MIT License](https://docs.mesa3d.org/license.html), Other Licenses (Refer to source files SPDX headers).
 * [GLXShim](https://github.com/Swung0x48/GLXShim) - Unknown License
 * [libdrm](https://gitlab.freedesktop.org/mesa/libdrm) - [Refer to SPDX headers](https://gitlab.freedesktop.org/mesa/libdrm)
+* [ANGLE](https://chromium.googlesource.com/angle/angle/): [ARR](https://chromium.googlesource.com/angle/angle/+/refs/heads/main/LICENSE)
 * [imgui-java](https://github.com/SpaiR/imgui-java): [MIT License](https://github.com/SpaiR/imgui-java/blob/main/LICENSE)
 * [zstd](https://github.com/facebook/zstd): [BSD License](https://github.com/facebook/zstd/blob/ae9f20ca2716f2605822ca375995b7d876389b64/LICENSE) or [GPLv2 License](https://github.com/facebook/zstd/blob/ae9f20ca2716f2605822ca375995b7d876389b64/COPYING)
 * [SDL3](https://github.com/libsdl-org/SDL): [zlib License](https://github.com/libsdl-org/SDL/blob/main/LICENSE.txt)

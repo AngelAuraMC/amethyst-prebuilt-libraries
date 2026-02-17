@@ -40,3 +40,6 @@
 [submodule "misc/openal-soft/openal-soft"]
 	path = misc/openal-soft/openal-soft
 	url = https://github.com/AngelAuraMC/openal-soft.git
+[submodule "renderers/ANGLE/angle"]
+	path = renderers/ANGLE/angle
+	url = https://github.com/AngelAuraMC/angle.git
