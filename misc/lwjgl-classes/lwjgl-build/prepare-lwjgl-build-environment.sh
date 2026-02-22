@@ -59,14 +59,9 @@ for LWJGL_BUILD_ARCH in "${ARCHES[@]}"; do
             ;;
     esac
 
-    TARGET=$NDK_TARGET-linux-android$NDK_SUFFIX
-    export PATH=$PATH:$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
-
     LWJGL_NATIVE=bin/libs/native/linux/$LWJGL_BUILD_ARCH/org/lwjgl
-    POJAV_NATIVES="https://github.com/AngelAuraMC/Amethyst-Android/raw/v3_openjdk/app_pojavlauncher/src/main/jniLibs/$NDK_ABI"
     mkdir -p $LWJGL_NATIVE
 
-    wget -nc $POJAV_NATIVES/libopenal.so -P $LWJGL_NATIVE/openal
     wget -nc "https://github.com/AngelAuraMC/shaderc/releases/latest/download/libshaderc-$NDK_ABI.zip"
     unzip -o libshaderc-$NDK_ABI.zip -d $LWJGL_NATIVE/shaderc
 done
