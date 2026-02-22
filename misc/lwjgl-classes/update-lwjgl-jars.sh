@@ -1,5 +1,6 @@
 #!/bin/bash
 # This script should be ran when updating lwjgl
+# HACK: The release ant task requires using java 8 due to the hacks we use to get lwjglx integrated. This means we can't automatically manage this with AGP.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
