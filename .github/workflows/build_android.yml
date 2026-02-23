@@ -13,6 +13,21 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module: [
+          "MobileGlues",
+          "kopper-zink",
+          "HolyGL4ES",
+          "krypton_wrapper",
+          "SDL",
+          "zstd",
+          "imgui-java",
+          "arc_dns_injector",
+          "lwjgl-build",
+          "openal-soft",
+          "angle"
+        ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,36 +41,35 @@ jobs:
           java-version: '8'
       - name: Export JAVA8_HOME
         run: echo "JAVA8_HOME=${{ steps.jdk8.outputs.path }}" >> $GITHUB_ENV
-      - name: Set up JDK 21
-        id: jdk21
+      - name: Set up JDK 17 # imgui-java uses gradle 7.4.2 which fails on 21+
+        id: jdk17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '17'
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ matrix.module }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-${{ matrix.module }}-
       - name: Build everything
         run: |
           sudo apt install -y python3-mako meson
-          ./gradlew assembleRelease
+          ./gradlew :${{ matrix.module }}:assembleRelease --no-daemon
       - name: Setup tmate session if failed
         if: ${{ failure() }}
         uses: mxschmitt/action-tmate@v3
-      - name: Create a Release
-        uses: softprops/action-gh-release@v2
-        if: github.ref_type == 'tag'
-        with:
-          files: |
-            build/outputs/aar/**
-            build/libs/**
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: true
-          tag_name: "latest"
       - name: Upload AARs
         uses: actions/upload-artifact@v4
         with:
-          name: aars
+          name: ${{ matrix.module }}-aars
           path: build/outputs/aar
       - name: Upload JARs
         uses: actions/upload-artifact@v4
         with:
-          name: jars
+          name: ${{ matrix.module }}-jars
           path: build/libs
