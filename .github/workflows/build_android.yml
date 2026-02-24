@@ -15,27 +15,44 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        module: [
-          "MobileGlues",
-          "kopper-zink",
-          "HolyGL4ES",
-          "krypton_wrapper",
-          "SDL",
-          "zstd",
-          "imgui-java",
-          "arc_dns_injector",
-          "lwjgl-build",
-          "openal-soft",
-          "angle"
-        ]
+        module:
+          - module: "MobileGlues"
+            path: "renderers/MobileGlues"
+          - module: "kopper-zink"
+            path: "renderers/mesa-libs/*"
+          - module: "HolyGL4ES"
+            path: "renderers/HolyGL4ES"
+          - module: "krypton_wrapper"
+            path: "renderers/krypton_wrapper"
+          - module: "SDL"
+            path: "SDL/*"
+          - module: "zstd"
+            path: "misc/zstd"
+          - module: "imgui-java"
+            path: "misc/imgui-java"
+          - module: "arc_dns_injector"
+            path: "misc/arc_dns_injector"
+          - module: "lwjgl-build"
+            path: "misc/lwjgl-classes/* misc/openal-soft/*"
+          - module: "openal-soft"
+            path: "misc/openal-soft"
+          - module: "angle" # ANGLE needs special treatment with depot-tools
+            path: "renderers/ANGLE"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: "recursive"
-      - name: Initialize ANGLE manually # depot-tools is the proper tool to handle the nested submodules so we block git recursively checking those out and just init the repo without submodules.
+          submodules: false
+          fetch-depth: 1
+      - name: Checkout only submodule to be built
         run: |
-          git submodule update --init --depth 1 --checkout renderers/ANGLE/angle
+          MODULE_NAME="${{ matrix.module.module }}"
+          MODULE_PATH="${{ matrix.module.path }}"
+          if [ "$MODULE_NAME" == "angle" ]; then # ANGLE's special treatment. depot-tools is the one that clones submodules properly.
+              git submodule update --init --depth 1 --checkout $MODULE_PATH
+          else
+              git submodule update --init --recursive --depth 1 $MODULE_PATH
+          fi
       - name: Set up JDK 8
         id: jdk8
         uses: actions/setup-java@v4
@@ -56,23 +73,23 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ matrix.module }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: gradle-${{ runner.os }}-${{ matrix.module.module }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            gradle-${{ runner.os }}-${{ matrix.module }}-
+            gradle-${{ runner.os }}-${{ matrix.module.module }}
       - name: Build everything
         run: |
           sudo apt install -y python3-mako meson
-          ./gradlew :${{ matrix.module }}:assembleRelease --no-daemon
+          ./gradlew :${{ matrix.module.module }}:assembleRelease --no-daemon
       - name: Setup tmate session if failed
         if: ${{ failure() }}
         uses: mxschmitt/action-tmate@v3
       - name: Upload AARs
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.module }}-aars
+          name: ${{ matrix.module.module }}-aars
           path: build/outputs/aar
       - name: Upload JARs
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.module }}-jars
+          name: ${{ matrix.module.module }}-jars
           path: build/libs
