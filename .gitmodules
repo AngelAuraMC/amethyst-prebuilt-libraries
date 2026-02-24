@@ -5,6 +5,7 @@
 [submodule "GLXShim"]
 	path = renderers/mesa-libs/libs/kopper_zink/GLXShim
 	url = https://github.com/Swung0x48/GLXShim.git
+	shallow = true
 [submodule "mesa-kopper"]
 	path = renderers/mesa-libs/mesa
 	url = https://gitlab.freedesktop.org/Swung0x48/mesa.git
@@ -28,18 +29,25 @@
 [submodule "renderers/krypton_wrapper/krypton_wrapper"]
 	path = renderers/krypton_wrapper/krypton_wrapper
 	url = https://github.com/BZLZHH/NG-GL4ES.git
+	shallow = true
 [submodule "zstd"]
 	path = misc/zstd/zstd
 	url = https://github.com/facebook/zstd.git
+	shallow = true
 [submodule "imgui-java"]
 	path = misc/imgui-java/imgui-java
 	url = https://github.com/alexytomi/imgui-java.git
+	shallow = true
 [submodule "misc/lwjgl-classes/lwjgl3"]
 	path = misc/lwjgl-classes/lwjgl3
 	url = https://github.com/AngelAuraMC/lwjgl3.git
+	shallow = true
 [submodule "misc/openal-soft/openal-soft"]
 	path = misc/openal-soft/openal-soft
 	url = https://github.com/AngelAuraMC/openal-soft.git
+	shallow = true
 [submodule "renderers/ANGLE/angle"]
 	path = renderers/ANGLE/angle
 	url = https://github.com/AngelAuraMC/angle.git
+	shallow = true
+	update = none
