@@ -8,6 +8,7 @@ tasks.register("collectAars", Copy) {
     from(subprojects.collect { subproject ->
         subproject.layout.buildDirectory.dir("outputs/aar")
     })
+    include("*.aar")
     into(layout.buildDirectory.dir("outputs/aar"))
     outputs.dir(layout.buildDirectory.dir("outputs/aar"))
 }
@@ -16,6 +17,7 @@ tasks.register("collectLibs", Copy) {
     from(subprojects.collect { subproject ->
         subproject.layout.buildDirectory.dir("libs/")
     })
+    include("*.jar")
     into(layout.buildDirectory.dir("libs/"))
     outputs.dir(layout.buildDirectory.dir("libs/"))
 }
@@ -30,9 +32,19 @@ tasks.register("collectLibLicenses", Copy) {
 
 tasks.named("clean", Delete) {
     delete(
+        // This refetches all the AARs from the subprojects
         layout.buildDirectory.dir("outputs/aar"),
         layout.buildDirectory.dir("libs"),
-        layout.buildDirectory.dir("licenses")
+        layout.buildDirectory.dir("licenses"),
+        // This regenerates all AARs in the subprojects
+        // Increases build time by about 15 seconds
+        // Comment it out if you want
+        subprojects.collectMany { subproject ->
+            [
+                subproject.layout.buildDirectory.dir("outputs/aar"),
+                subproject.layout.buildDirectory.dir("libs")
+            ]
+        }
     )
 }
 
