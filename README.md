@@ -12,6 +12,12 @@ The root directory contains the root project which takes all the AAR outputs of 
 
 Any mesa based AAR should be put under `renderers/mesa-libs/libs/<subproject_name>` for organization. Everything else should be self-explanatory, renderers go in the renderers, if you need to add a non-renderer, give it a folder.
 
+## Building
+Simply run `./gradlew assembleRelease`
+
+- `lwjgl-build` requires you to `export JAVA8_HOME=path/to/java8` in order to build the natives.
+
+
 # Licenses
 ___
 * [Arcmetica DNS Injector](https://github.com/AngelAuraMC/amethyst-prebuilt-libraries/tree/master/misc/arc_dns_injector): [LGPLv3 License](https://github.com/AngelAuraMC/amethyst-prebuilt-libraries/blob/master/misc/arc_dns_injector/LICENSE)
