@@ -9,10 +9,15 @@ group = 'org.lwjgl.glfw'
 configurations.default.setCanBeResolved(true)
 
 jar {
+    // Makes it reproducible so the version hash actually does its job
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
     // Make sure we actually have something to put in a jar
     def libsDir = file("$projectDir/libs")
     def licensesDir = file("$projectDir/licenses")
-
+    def buildDir = layout.buildDirectory.asFile.get().path
+    def versionFile = new File("$buildDir", "libs/version")
+    outputs.file(versionFile)
     if (!libsDir.exists() || !libsDir.listFiles()?.length) {
         throw new GradleException("The libs directory is empty or missing: $libsDir")
     }
@@ -23,16 +28,6 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveBaseName = "lwjgl-glfw-classes"
 
-    MessageDigest digest = MessageDigest.getInstance("SHA-256")
-    file("./libs").eachFileRecurse { file ->
-        if (file.isFile()) {
-            digest.update(file.name.bytes)
-            digest.update(file.bytes)
-        }
-    }
-    File versionFile = file("version")
-    versionFile.write(digest.digest().encodeHex().toString())
-    
     from {
         configurations.default.collect {
             println(it.getName())
@@ -42,9 +37,24 @@ jar {
     from("licenses") {
         into './licenses'
     }
-    from("./version")
-        into ''
     exclude 'net/java/openjdk/cacio/ctc/**'
+
+    doLast {
+        def jarFile = archiveFile.get().asFile
+        def sha256 = MessageDigest.getInstance("SHA-256")
+        jarFile.withInputStream { is ->
+            byte[] buffer = new byte[8192]
+            int read
+            while ((read = is.read(buffer)) != -1) {
+                sha256.update(buffer, 0, read)
+            }
+        }
+        def hash = sha256.digest().collect { String.format("%02x", it) }.join()
+        versionFile.write(hash)
+    }
+    outputs.files.each {
+        println(it.path)
+    }
 }
 
 java {
