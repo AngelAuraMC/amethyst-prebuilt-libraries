@@ -62,7 +62,7 @@ afterEvaluate {
 }
 
 tasks.register("buildLwjglAar"){
-    dependsOn tasks.named("getLwjglJar")
+    // dependsOn tasks.named("getLwjglJar")
     dependsOn tasks.named("buildLwjglNatives")
 }
 
