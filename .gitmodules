@@ -47,3 +47,7 @@
 	url = https://github.com/AngelAuraMC/angle.git
 	shallow = true
 	update = none
+[submodule "misc/zstd-jni/zstd-jni"]
+	path = misc/zstd-jni/zstd-jni
+  url = https://github.com/luben/zstd-jni.git
+  shallow = true
