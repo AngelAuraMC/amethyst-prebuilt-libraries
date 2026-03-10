@@ -57,8 +57,13 @@ afterEvaluate {
           "mergeReleaseAssets",
           "mergeDebugAssets"
     ] }.configureEach {
-      dependsOn(tasks.named("buildLwjglAar"))
+      dependsOn(tasks.named("buildLwjgl"))
     }
+}
+
+tasks.register("buildLwjgl"){
+    dependsOn tasks.named("buildLwjglJar")
+    dependsOn tasks.named("buildLwjglNatives")
 }
 
 tasks.register("buildLwjglAar"){
@@ -91,6 +96,11 @@ tasks.register("prepareLwjglBuildEnvironment", Exec) {
     outputs.dir("$projectDir/../lwjgl3/bin/libs/native/linux")
     dependsOn tasks.named("getOpenALNativeAll")
     onlyIf { System.getenv("JAVA8_HOME") != null }
+}
+
+tasks.register("buildLwjglJar") {
+    def buildLwjglJar = project(":jre_lwjgl3glfw").tasks.named("jar")
+    dependsOn(buildLwjglJar)
 }
 
 tasks.register("getLwjglJar", Copy) {
