@@ -36,7 +36,7 @@ android {
     }
     externalNativeBuild {
         cmake {
-            path = file("MobileGlues/src/main/cpp/CMakeLists.txt")
+            path = file("MobileGlues/MobileGlues-cpp/CMakeLists.txt")
             version = "3.22.1"
         }
     }
