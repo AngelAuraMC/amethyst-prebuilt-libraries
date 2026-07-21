@@ -51,3 +51,6 @@
 	path = misc/zstd-jni/zstd-jni
   url = https://github.com/luben/zstd-jni.git
   shallow = true
+[submodule "MobileGL"]
+	path = renderers/MobileGL/MobileGL
+	url = https://github.com/MobileGL-Dev/MobileGL.git

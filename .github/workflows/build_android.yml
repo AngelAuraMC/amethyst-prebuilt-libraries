@@ -18,6 +18,8 @@ jobs:
         module:
           - module: "MobileGlues"
             path: "renderers/MobileGlues"
+          - module: "MobileGL"
+            path: "renderers/MobileGL"
           - module: "kopper-zink"
             path: "renderers/mesa-libs/*"
           - module: "HolyGL4ES"

@@ -15,7 +15,8 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = 'amethyst-external-library-builds'
-include(":MobileGlues")
+include (":MobileGlues")
+include (":MobileGL")
 include (":kopper-zink")
 include (":HolyGL4ES")
 include (":krypton_wrapper")
@@ -29,6 +30,7 @@ include (":openal-soft")
 include (":angle")
 
 project(":MobileGlues").projectDir = file("renderers/MobileGlues")
+project(":MobileGL").projectDir = file("renderers/MobileGL")
 project(":kopper-zink").projectDir = file("renderers/mesa-libs/libs/kopper_zink")
 project(":HolyGL4ES").projectDir = file("renderers/HolyGL4ES")
 project(":krypton_wrapper").projectDir = file("renderers/krypton_wrapper")

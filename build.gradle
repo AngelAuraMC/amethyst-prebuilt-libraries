@@ -85,8 +85,9 @@ subprojects { subproject ->
             finalizedBy(rootProject.tasks.named('collectLibs'))
             finalizedBy(rootProject.tasks.named('collectLibLicenses'))
         }
-        // Force SDK21 on all of them!!
-        if (subproject.plugins.hasPlugin('com.android.library')) {
+        // Force SDK21 on all of them!! Except some...
+        if (subproject.name != "MobileGL" &&
+            subproject.plugins.hasPlugin('com.android.library')) {
             subproject.android {
                 defaultConfig {
                     minSdkVersion 21
