@@ -48,6 +48,7 @@ jobs:
           fetch-depth: 1
       - name: Checkout only submodule to be built
         run: |
+          export GIT_LFS_SKIP_SMUDGE=1
           MODULE_NAME="${{ matrix.module.module }}"
           MODULE_PATH="${{ matrix.module.path }}"
           if [ "$MODULE_NAME" == "angle" ]; then # ANGLE's special treatment. depot-tools is the one that clones submodules properly.
