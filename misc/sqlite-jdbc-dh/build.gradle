@@ -1,0 +1,49 @@
+plugins {
+    id("com.android.library")
+}
+
+// Builds Distant Horizons-compatible libsqlitejdbc.so from the xerial/sqlite-jdbc
+// submodule (pinned at 94c0ea1 = 3.53.2.1) with CMake/NDK. See CMakeLists.txt and
+// README.md for the amalgamation patch + dh_sqlite rename details.
+// No Java classes are included: Distant Horizons provides the Java side itself.
+android {
+    namespace = "org.angelauramc.sqlite_jdbc_dh"
+    compileSdkVersion 36
+
+    defaultConfig {
+        minSdk = 21
+
+        externalNativeBuild {
+            cmake {
+                cppFlags("")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = false
+            proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+            )
+        }
+        getByName("debug") {
+            jniDebuggable = true
+        }
+    }
+    sourceSets {
+        main {
+            assets.srcDirs += [
+                    'assets'
+            ]
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path("CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+    ndkVersion = "25.2.9519653"
+}
