@@ -56,18 +56,23 @@ def sqliteGenDir = layout.buildDirectory.dir("sqlite-gen")
 
 tasks.register("prepareSqliteAmalgamation") {
     description = "Downloads and patches the SQLite amalgamation and applies DH's dh_sqlite rename to NativeDB.c"
+    // Everything the doLast closure touches must be captured at configuration time
+    // as plain serializable values (configuration cache forbids referencing the
+    // script/project from the action closure).
     def submoduleDir = project.file("sqlite-jdbc")
-    inputs.file("${submoduleDir}/VERSION")
-    inputs.file("${submoduleDir}/src/main/java/org/sqlite/core/NativeDB.c")
-    inputs.file("${submoduleDir}/src/main/ext/extension-functions.c")
-    outputs.dir(sqliteGenDir)
-    doLast {
-        def out = sqliteGenDir.get().asFile
+    def versionFile = new File(submoduleDir, "VERSION")
+    def nativeDbSrc = new File(submoduleDir, "src/main/java/org/sqlite/core/NativeDB.c")
+    def extFunctionsSrc = new File(submoduleDir, "src/main/ext/extension-functions.c")
+    def genDir = sqliteGenDir.get().asFile
+    inputs.files(versionFile, nativeDbSrc, extFunctionsSrc)
+    outputs.dir(genDir)
+    doLast { task ->
+        def out = genDir
         out.mkdirs()
 
         // 3.53.2 -> sqlite-amalgamation-3530200 (X + 2-digit Y + 2-digit Z + "00"),
         // same naming sqlite.org uses in its download URLs
-        def version = new File(submoduleDir, "VERSION").text.trim().replace("version=", "")
+        def version = versionFile.text.trim().replace("version=", "")
         def ver = version.split("\\.")
         def amalPrefix = String.format("sqlite-amalgamation-%d%02d%02d00",
                 ver[0] as int, ver[1] as int, ver[2] as int)
@@ -80,22 +85,34 @@ tasks.register("prepareSqliteAmalgamation") {
             def downloaded = false
             for (int attempt = 1; attempt <= 3 && !downloaded; attempt++) {
                 try {
-                    logger.lifecycle("Downloading $url (attempt $attempt)")
+                    task.logger.lifecycle("Downloading $url (attempt $attempt)")
                     if (zipFile.exists()) zipFile.delete()
                     new URL(url).withInputStream { ins ->
                         zipFile.withOutputStream { os -> os << ins }
                     }
                     downloaded = true
                 } catch (IOException e) {
-                    logger.warn("Download failed: $e")
+                    task.logger.warn("Download failed: $e")
                     if (attempt == 3) throw new GradleException(
                             "Failed to download ${amalPrefix}.zip from sqlite.org after 3 attempts")
-                    sleep(3000)
+                    Thread.sleep(3000)
                 }
             }
-            copy {
-                from zipTree(zipFile)
-                into out
+            // Pure-Java unzip (no project.copy: not configuration-cache safe here)
+            def zin = new java.util.zip.ZipInputStream(new FileInputStream(zipFile))
+            try {
+                def entry
+                while ((entry = zin.nextEntry) != null) {
+                    def target = new File(out, entry.name)
+                    if (entry.isDirectory()) {
+                        target.mkdirs()
+                    } else {
+                        target.parentFile.mkdirs()
+                        target.withOutputStream { os -> os << zin }
+                    }
+                }
+            } finally {
+                zin.close()
             }
         }
 
@@ -110,15 +127,14 @@ tasks.register("prepareSqliteAmalgamation") {
                 "static const char * const sqlite3azCompileOpt[] = {\n\n/* This has been automatically added by sqlite-jdbc */\n  \"JDBC_EXTENSIONS\",")
         new File(out, "sqlite3.c").text = sqlite3c
         // append the JDBC extension functions to the amalgamation
-        new File(out, "sqlite3.c") << new File(submoduleDir, "src/main/ext/extension-functions.c").text
-        copy {
-            from new File(amalDir, "sqlite3.h")
-            into out
+        new File(out, "sqlite3.c") << extFunctionsSrc.text
+        new File(amalDir, "sqlite3.h").withInputStream { ins ->
+            new File(out, "sqlite3.h").withOutputStream { os -> os << ins }
         }
 
         // Rename NativeDB.c for Distant Horizons (dh_sqlite.core.NativeDB) — this is
         // what DH's NativeRelocator does to the compiled binary, applied at source level
-        def nativeDb = new File(submoduleDir, "src/main/java/org/sqlite/core/NativeDB.c").text
+        def nativeDb = nativeDbSrc.text
         nativeDb = nativeDb.replace("org_sqlite", "dh_1sqlite")
         nativeDb = nativeDb.replace("org/sqlite", "dh_sqlite")
         nativeDb = nativeDb.replace("org.sqlite", "dh_sqlite")
