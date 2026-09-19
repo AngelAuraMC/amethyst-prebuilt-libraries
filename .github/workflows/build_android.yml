@@ -40,6 +40,8 @@ jobs:
             path: "misc/lwjgl-classes/* misc/openal-soft/*"
           - module: "openal-soft"
             path: "misc/openal-soft"
+          - module: "sqlite-jdbc-dh"
+            path: "misc/sqlite-jdbc-dh"
           - module: "angle" # ANGLE needs special treatment with depot-tools
             path: "renderers/ANGLE"
     steps:
