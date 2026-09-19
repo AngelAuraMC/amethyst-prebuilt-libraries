@@ -3,9 +3,8 @@ plugins {
 }
 
 // Builds Distant Horizons-compatible libsqlitejdbc.so from the xerial/sqlite-jdbc
-// submodule (pinned at 94c0ea1 = 3.53.2.1) with CMake/NDK. See CMakeLists.txt and
-// README.md for the amalgamation patch + dh_sqlite rename details.
-// No Java classes are included: Distant Horizons provides the Java side itself.
+// submodule (pinned at 94c0ea1 = 3.53.2.1) with CMake/NDK. No Java classes are
+// included: Distant Horizons provides the Java side itself.
 android {
     namespace = "org.angelauramc.sqlite_jdbc_dh"
     compileSdkVersion 36
@@ -46,4 +45,89 @@ android {
         }
     }
     ndkVersion = "25.2.9519653"
+}
+
+// The amalgamation download/patching and the dh_sqlite rename are done here (once,
+// shared by all ABIs) instead of in CMakeLists.txt: AGP runs the four
+// configureCMake[abi] tasks in parallel, so a shared CMake-side download races with
+// itself (partial zip -> empty extraction -> "sqlite3.c not found" on CI). AGP's
+// configureCMake tasks are wired to depend on this task below.
+def sqliteGenDir = layout.buildDirectory.dir("sqlite-gen")
+
+tasks.register("prepareSqliteAmalgamation") {
+    description = "Downloads and patches the SQLite amalgamation and applies DH's dh_sqlite rename to NativeDB.c"
+    def submoduleDir = project.file("sqlite-jdbc")
+    inputs.file("${submoduleDir}/VERSION")
+    inputs.file("${submoduleDir}/src/main/java/org/sqlite/core/NativeDB.c")
+    inputs.file("${submoduleDir}/src/main/ext/extension-functions.c")
+    outputs.dir(sqliteGenDir)
+    doLast {
+        def out = sqliteGenDir.get().asFile
+        out.mkdirs()
+
+        // 3.53.2 -> sqlite-amalgamation-3530200 (X + 2-digit Y + 2-digit Z + "00"),
+        // same naming sqlite.org uses in its download URLs
+        def version = new File(submoduleDir, "VERSION").text.trim().replace("version=", "")
+        def ver = version.split("\\.")
+        def amalPrefix = String.format("sqlite-amalgamation-%d%02d%02d00",
+                ver[0] as int, ver[1] as int, ver[2] as int)
+        def amalDir = new File(out, amalPrefix)
+
+        if (!new File(amalDir, "sqlite3.c").exists()) {
+            // 3.53.2 was published under https://www.sqlite.org/2026/
+            def zipFile = new File(out, "${amalPrefix}.zip")
+            def url = "https://www.sqlite.org/2026/${amalPrefix}.zip"
+            def downloaded = false
+            for (int attempt = 1; attempt <= 3 && !downloaded; attempt++) {
+                try {
+                    logger.lifecycle("Downloading $url (attempt $attempt)")
+                    if (zipFile.exists()) zipFile.delete()
+                    new URL(url).withInputStream { ins ->
+                        zipFile.withOutputStream { os -> os << ins }
+                    }
+                    downloaded = true
+                } catch (IOException e) {
+                    logger.warn("Download failed: $e")
+                    if (attempt == 3) throw new GradleException(
+                            "Failed to download ${amalPrefix}.zip from sqlite.org after 3 attempts")
+                    sleep(3000)
+                }
+            }
+            copy {
+                from zipTree(zipFile)
+                into out
+            }
+        }
+
+        // Patch the amalgamation (upstream Makefile's perl steps)
+        def sqlite3c = new File(amalDir, "sqlite3.c").text
+        // insert a code for loading extension functions
+        sqlite3c = sqlite3c.replace("opendb_out:",
+                "  if(!db->mallocFailed && rc==SQLITE_OK){ rc = RegisterExtensionFunctions(db); }\nopendb_out:")
+        // register compile option 'JDBC_EXTENSIONS'
+        sqlite3c = sqlite3c.replace(
+                "static const char * const sqlite3azCompileOpt[] = {",
+                "static const char * const sqlite3azCompileOpt[] = {\n\n/* This has been automatically added by sqlite-jdbc */\n  \"JDBC_EXTENSIONS\",")
+        new File(out, "sqlite3.c").text = sqlite3c
+        // append the JDBC extension functions to the amalgamation
+        new File(out, "sqlite3.c") << new File(submoduleDir, "src/main/ext/extension-functions.c").text
+        copy {
+            from new File(amalDir, "sqlite3.h")
+            into out
+        }
+
+        // Rename NativeDB.c for Distant Horizons (dh_sqlite.core.NativeDB) — this is
+        // what DH's NativeRelocator does to the compiled binary, applied at source level
+        def nativeDb = new File(submoduleDir, "src/main/java/org/sqlite/core/NativeDB.c").text
+        nativeDb = nativeDb.replace("org_sqlite", "dh_1sqlite")
+        nativeDb = nativeDb.replace("org/sqlite", "dh_sqlite")
+        nativeDb = nativeDb.replace("org.sqlite", "dh_sqlite")
+        new File(out, "NativeDB.c").text = nativeDb
+    }
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith("configureCMake")) {
+        task.dependsOn "prepareSqliteAmalgamation"
+    }
 }
